@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>반려동물의 목소리가 들려</title>
+    <!-- Google Fonts: Noto Sans KR -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700;900&display=swap" rel="stylesheet">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* CSS Reset and Basic Styles */
+        :root {
+            --primary-color: #fef84b; /* 쨍한 노란색 */
+            --dark-color: #333;
+            --light-color: #fff;
+            --grey-color: #f4f4f4;
+            --border-radius: 12px;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: var(--grey-color);
+            color: var(--dark-color);
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 0 20px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        /* Header */
+        .main-header {
+            background-color: var(--light-color);
+            padding: 1rem 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .main-header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: var(--primary-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative; /* For notification panel positioning */
+        }
+
+        .weather-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+
+        .weather-info .icon {
+            color: var(--primary-color);
+        }
+
+        .user-actions {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-actions a, .user-actions .notification {
+            font-size: 0.9rem;
+            color: #555;
+            transition: color 0.3s ease;
+        }
+
+        .user-actions a:hover {
+            color: var(--primary-color);
+        }
+        
+        .user-actions .notification {
+            cursor: pointer;
+            position: relative;
+        }
+        
+        /* Notification Panel */
+        .notification-panel {
+            display: none; /* Hide by default */
+            position: absolute;
+            top: 45px; /* Position below the header */
+            right: 0;
+            width: 320px;
+            background-color: var(--light-color);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: 1px solid #eee;
+            z-index: 1000;
+        }
+        
+        .notification-panel.show {
+            display: block; /* Show when active */
+        }
+
+        .notification-header {
+            padding: 15px;
+            font-weight: 700;
+            border-bottom: 1px solid #eee;
+        }
+
+        .notification-body {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .notification-item {
+            padding: 15px;
+            border-bottom: 1px solid #f9f9f9;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .notification-item:last-child {
+            border-bottom: none;
+        }
+
+        .notification-item:hover {
+            background-color: #fdfdfd;
+        }
+        
+        .notification-item p {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+        
+        .notification-item .time {
+            font-size: 0.8rem;
+            color: #999;
+        }
+
+
+        /* Navigation Bar */
+        .main-nav {
+            background-color: var(--primary-color);
+            padding: 0.8rem 0;
+            box-shadow: var(--shadow);
+        }
+
+        .main-nav .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-nav ul {
+            display: flex;
+            gap: 40px;
+        }
+
+        .main-nav a {
+            color: var(--dark-color);
+            font-weight: 700;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+            position: relative;
+        }
+
+        .main-nav a:hover, .main-nav a.active {
+            background-color: var(--light-color);
+            color: var(--primary-color);
+        }
+        
+        .main-nav a::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 3px;
+            bottom: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--light-color);
+            transition: width 0.3s ease;
+        }
+
+        .main-nav a:hover::after {
+            width: 80%;
+        }
+
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px 0;
+        }
+        
+        .main-content .container {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 30px;
+        }
+
+        .content-card {
+            background-color: var(--light-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        .content-card h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--dark-color);
+            border-left: 5px solid var(--primary-color);
+            padding-left: 10px;
+        }
+
+        .post-grid, .todo-list {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .post-grid {
+             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        }
+
+        .post-item, .todo-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .post-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.08);
+        }
+        
+        .post-item h3 {
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+        
+        .post-item p {
+            font-size: 0.9rem;
+            color: #666;
+        }
+
+        .todo-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: #fafafa;
+        }
+        
+        .todo-item input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            accent-color: var(--primary-color);
+        }
+
+
+        /* Footer */
+        .main-footer {
+            background-color: var(--dark-color);
+            color: var(--light-color);
+            text-align: center;
+            padding: 2rem 0;
+            font-size: 0.9rem;
+        }
+
+        .main-footer .container p {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-links {
+            margin-top: 1rem;
+        }
+        
+        .footer-links a {
+            color: var(--primary-color);
+            margin: 0 10px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .main-header .container {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .main-nav ul {
+                flex-direction: column;
+                gap: 10px;
+                width: 100%;
+                text-align: center;
+            }
+            
+            .main-nav a {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Section -->
+    <header class="main-header">
+        <div class="container">
+            <div class="logo">
+                <a href="#">반려동물의 목소리가 들려</a>
+            </div>
+            <div class="header-right">
+                <!-- Weather API Placeholder -->
+                <div class="weather-info">
+                    <i class="fas fa-sun icon"></i>
+                    <span id="weather-text">서울 맑음 25°C</span>
+                </div>
+                <div class="user-actions">
+                    <a href="#">로그인</a>
+                    <span>/</span>
+                    <a href="#">회원가입</a>
+                    <div class="notification" id="notification-bell">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                </div>
+                <!-- Notification Panel -->
+                <div class="notification-panel" id="notification-panel">
+                    <div class="notification-header">
+                        <h3>알림</h3>
+                    </div>
+                    <div class="notification-body">
+                        <div class="notification-item">
+                            <p><strong>'우리집 강아지 자랑해요!'</strong> 게시글에 새로운 댓글이 달렸습니다.</p>
+                            <span class="time">5분 전</span>
+                        </div>
+                        <div class="notification-item">
+                            <p><strong>'뽀삐'</strong> 님의 데일리케어 기록을 할 시간입니다.</p>
+                            <span class="time">1시간 전</span>
+                        </div>
+                         <div class="notification-item">
+                            <p><strong>이벤트:</strong> 댕댕이 페스티벌에 참여해보세요!</p>
+                            <span class="time">어제</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Bar -->
+    <nav class="main-nav">
+        <div class="container">
+            <ul>
+                <li><a href="#" class="active">커뮤니티</a></li>
+                <li><a href="#">플레이스</a></li>
+                <li><a href="#">투어스팟</a></li>
+                <li><a href="#">데일리케어</a></li>
+                <li><a href="#">너의 일기장</a></li>
+                <li><a href="#">마이페이지</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content Section -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Recommended Posts Section -->
+            <section class="content-card">
+                <h2>추천 게시물</h2>
+                <div class="post-grid">
+                    <div class="post-item">
+                        <h3>우리집 강아지 자랑해요!</h3>
+                        <p>너무 귀여운 우리 뽀삐 사진 보고 가세요~</p>
+                    </div>
+                    <div class="post-item">
+                        <h3>고양이 사료 추천 받아요</h3>
+                        <p>입맛 까다로운 냥이를 위한 사료가 있을까요?</p>
+                    </div>
+                    <div class="post-item">
+                        <h3>산책하기 좋은 공원 리스트</h3>
+                        <p>서울 근교에 반려견과 함께 가기 좋은 곳들.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Today's To-Do Section -->
+            <section class="content-card">
+                <h2>오늘의 할 일</h2>
+                <div class="todo-list">
+                    <div class="todo-item">
+                        <input type="checkbox" id="todo1" checked>
+                        <label for="todo1">하루 2번 산책하기 (1/2)</label>
+                    </div>
+                    <div class="todo-item">
+                        <input type="checkbox" id="todo2">
+                        <label for="todo2">영양제 챙겨주기</label>
+                    </div>
+                    <div class="todo-item">
+                        <input type="checkbox" id="todo3">
+                        <label for="todo3">발톱 정리하기</label>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="main-footer">
+        <div class="container">
+            <p>&copy; 2024 반려동물의 목소리가 들려. All Rights Reserved.</p>
+            <p>사업자등록번호: 123-45-67890 | 대표: 홍길동</p>
+            <div class="footer-links">
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+                <a href="#">고객센터</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("페이지가 로드되었습니다. '반려동물의 목소리가 들려' 서비스를 시작합니다!");
+
+            const notificationBell = document.getElementById('notification-bell');
+            const notificationPanel = document.getElementById('notification-panel');
+
+            // 알림 아이콘 클릭 시 알림창 토글
+            notificationBell.addEventListener('click', function(event) {
+                event.stopPropagation(); // 이벤트 버블링 방지
+                notificationPanel.classList.toggle('show');
+            });
+
+            // 알림창 외부 클릭 시 알림창 닫기
+            window.addEventListener('click', function(event) {
+                if (!notificationPanel.contains(event.target) && !notificationBell.contains(event.target)) {
+                    notificationPanel.classList.remove('show');
+                }
+            });
+
+            // 알림창 내부 클릭 시 닫히지 않도록 함
+            notificationPanel.addEventListener('click', function(event) {
+                event.stopPropagation();
+            });
+
+
+            // 날씨 API 호출 (예시)
+            function getWeatherData() {
+                const weatherElement = document.getElementById('weather-text');
+                console.log('날씨 정보를 업데이트합니다.');
+            }
+
+            getWeatherData();
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #fffbea;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #FFD600;
+    padding: 10px 20px;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.auth-buttons button {
+    margin-left: 5px;
+    padding: 5px 10px;
+    background-color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.logo {
+    height: 40px;
+}
+
+.service-title {
+    font-weight: bold;
+    font-size: 1.2em;
+}
+
+.navbar {
+    background-color: #FFC400;
+    padding: 10px 0;
+}
+
+.navbar ul {
+    list-style: none;
+    display: flex;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    gap: 20px;
+}
+
+.navbar a {
+    text-decoration: none;
+    color: black;
+    font-weight: bold;
+}
+
+.navbar a:hover {
+    color: #ff8c00;
+}
+
+main {
+    padding: 20px;
+}
+
+.card-list {
+    display: flex;
+    gap: 15px;
+}
+
+.card {
+    background-color: white;
+    border: 1px solid #eee;
+    padding: 10px;
+    border-radius: 8px;
+    width: 150px;
+    text-align: center;
+}
+
+.todo-list {
+    background-color: white;
+    padding: 10px;
+    border-radius: 8px;
+    list-style: none;
+}
+
+.footer {
+    text-align: center;
+    padding: 15px;
+    background-color: #FFD600;
+    font-size: 0.9em;
+}

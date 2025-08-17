@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyPet's Voice - 우리 반려동물과의 소통</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- 로딩 스피너 -->
+    <div id="loading" class="loading-overlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-paw"></i>
+                <span>MyPet's Voice</span>
+            </div>
+            
+            <div class="nav-menu" id="nav-menu">
+                <a href="#home" class="nav-link" onclick="showSection('home')">홈</a>
+                <a href="#chat" class="nav-link" onclick="showSection('chat')" id="nav-chat" style="display: none;">채팅</a>
+                <a href="#diary" class="nav-link" onclick="showSection('diary')" id="nav-diary" style="display: none;">일기</a>
+                <a href="#community" class="nav-link" onclick="showSection('community')">커뮤니티</a>
+                <a href="#mypage" class="nav-link" onclick="showSection('mypage')" id="nav-mypage" style="display: none;">마이페이지</a>
+            </div>
+
+            <div class="nav-auth" id="nav-auth">
+                <button class="btn btn-outline" onclick="showLoginModal()">로그인</button>
+                <button class="btn btn-primary" onclick="showRegisterModal()">회원가입</button>
+            </div>
+
+            <div class="nav-user" id="nav-user" style="display: none;">
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="/images/default-avatar.png" alt="프로필" id="user-avatar">
+                    <span id="user-nickname">사용자</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="user-menu" id="user-menu">
+                    <a href="#" onclick="showSection('mypage')"><i class="fas fa-user"></i> 마이페이지</a>
+                    <a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                </div>
+            </div>
+
+            <div class="nav-toggle" onclick="toggleMobileMenu()">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 컨테이너 -->
+    <main class="main-container">
+        <!-- 홈 섹션 -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <div class="hero-content">
+                    <h1>우리 반려동물과 함께하는<br><span class="highlight">특별한 소통의 시간</span></h1>
+                    <p>AI와 함께 반려동물의 마음을 듣고, 소중한 추억을 기록해보세요</p>
+                    <div class="hero-buttons">
+                        <button class="btn btn-primary btn-large" onclick="showRegisterModal()">지금 시작하기</button>
+                        <button class="btn btn-outline btn-large" onclick="showSection('community')">커뮤니티 둘러보기</button>
+                    </div>
+                </div>
+                <div class="hero-image">
+                    <div class="pet-card">
+                        <div class="pet-avatar">🐕</div>
+                        <div class="chat-bubble">안녕! 나와 대화해볼까?</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="features">
+                <div class="container">
+                    <h2>MyPet's Voice와 함께해요</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <i class="fas fa-comments"></i>
+                            <h3>AI 채팅</h3>
+                            <p>반려동물의 성격을 학습한 AI와 자연스러운 대화를 나눠보세요</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-book"></i>
+                            <h3>일기 작성</h3>
+                            <p>반려동물의 시점에서 하루를 기록하고 소중한 추억을 남겨보세요</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-users"></i>
+                            <h3>커뮤니티</h3>
+                            <p>다른 반려동물 가족들과 정보를 공유하고 소통해보세요</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-heart"></i>
+                            <h3>케어 관리</h3>
+                            <p>건강 관리부터 일상 루틴까지, 체계적으로 관리해보세요</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="popular-content">
+                <div class="container">
+                    <h2>인기 콘텐츠</h2>
+                    <div class="content-tabs">
+                        <button class="tab-btn active" data-tab="popular-diaries">인기 일기</button>
+                        <button class="tab-btn" data-tab="popular-posts">인기 게시글</button>
+                    </div>
+                    <div class="content-grid" id="popular-content">
+                        <!-- 동적으로 로드됩니다 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 채팅 섹션 -->
+        <section id="chat" class="section">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="pet-selector">
+                        <select id="chat-pet-select" onchange="selectChatPet()">
+                            <option value="">대화할 반려동물을 선택하세요</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div class="welcome-message">
+                        <div class="pet-avatar">🐾</div>
+                        <p>반려동물을 선택하고 대화를 시작해보세요!</p>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." onkeypress="handleChatKeyPress(event)">
+                        <button id="chat-send-btn" onclick="sendMessage()" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 일기 섹션 -->
+        <section id="diary" class="section">
+            <div class="diary-container">
+                <div class="diary-header">
+                    <h2>반려동물 일기</h2>
+                    <div class="diary-actions">
+                        <button class="btn btn-primary" onclick="showDiaryWriteModal()">
+                            <i class="fas fa-plus"></i> 일기 쓰기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="diary-filters">
+                    <select id="diary-pet-filter" onchange="filterDiaries()">
+                        <option value="">모든 반려동물</option>
+                    </select>
+                    <div class="view-toggle">
+                        <button class="view-btn active" data-view="my" onclick="toggleDiaryView('my')">내 일기</button>
+                        <button class="view-btn" data-view="public" onclick="toggleDiaryView('public')">공개 일기</button>
+                    </div>
+                </div>
+
+                <div class="diary-grid" id="diary-grid">
+                    <!-- 동적으로 로드됩니다 -->
+                </div>
+
+                <div class="pagination" id="diary-pagination"></div>
+            </div>
+        </section>
+
+        <!-- 커뮤니티 섹션 -->
+        <section id="community" class="section">
+            <div class="community-container">
+                <div class="community-header">
+                    <h2>커뮤니티</h2>
+                    <button class="btn btn-primary" onclick="showPostWriteModal()">
+                        <i class="fas fa-plus"></i> 글쓰기
+                    </button>
+                </div>
+
+                <div class="community-filters">
+                    <div class="search-bar">
+                        <input type="text" id="community-search" placeholder="검색어를 입력하세요...">
+                        <button onclick="searchCommunity()"><i class="fas fa-search"></i></button>
+                    </div>
+                    <div class="filter-tags" id="popular-tags">
+                        <!-- 동적으로 로드됩니다 -->
+                    </div>
+                    <div class="sort-options">
+                        <select id="community-sort" onchange="sortCommunity()">
+                            <option value="latest">최신순</option>
+                            <option value="popular">인기순</option>
+                            <option value="comments">댓글순</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="community-posts" id="community-posts">
+                    <!-- 동적으로 로드됩니다 -->
+                </div>
+
+                <div class="pagination" id="community-pagination"></div>
+            </div>
+        </section>
+
+        <!-- 마이페이지 섹션 -->
+        <section id="mypage" class="section">
+            <div class="mypage-container">
+                <div class="mypage-sidebar">
+                    <div class="profile-card">
+                        <div class="profile-image">
+                            <img src="/images/default-avatar.png" alt="프로필" id="profile-image">
+                            <div class="image-upload" onclick="uploadProfileImage()">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <h3 id="profile-nickname">사용자</h3>
+                        <p id="profile-email">user@email.com</p>
+                    </div>
+
+                    <div class="menu-list">
+                        <button class="menu-item active" data-tab="profile" onclick="showMypageTab('profile')">
+                            <i class="fas fa-user"></i> 프로필 설정
+                        </button>
+                        <button class="menu-item" data-tab="pets" onclick="showMypageTab('pets')">
+                            <i class="fas fa-paw"></i> 반려동물 관리
+                        </button>
+                        <button class="menu-item" data-tab="diaries" onclick="showMypageTab('diaries')">
+                            <i class="fas fa-book"></i> 내 일기
+                        </button>
+                        <button class="menu-item" data-tab="settings" onclick="showMypageTab('settings')">
+                            <i class="fas fa-cog"></i> 계정 설정
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mypage-content">
+                    <!-- 프로필 설정 -->
+                    <div class="tab-content active" id="profile-tab">
+                        <h3>프로필 설정</h3>
+                        <form id="profile-form">
+                            <div class="form-group">
+                                <label>닉네임</label>
+                                <input type="text" id="profile-nickname-input" placeholder="닉네임을 입력하세요">
+                            </div>
+                            <button type="submit" class="btn btn-primary">저장</button>
+                        </form>
+                    </div>
+
+                    <!-- 반려동물 관리 -->
+                    <div class="tab-content" id="pets-tab">
+                        <div class="tab-header">
+                            <h3>반려동물 관리</h3>
+                            <button class="btn btn-primary" onclick="showPetAddModal()">
+                                <i class="fas fa-plus"></i> 반려동물 추가
+                            </button>
+                        </div>
+                        <div class="pets-grid" id="pets-grid">
+                            <!-- 동적으로 로드됩니다 -->
+                        </div>
+                    </div>
+
+                    <!-- 내 일기 -->
+                    <div class="tab-content" id="diaries-tab">
+                        <h3>내 일기</h3>
+                        <div class="diaries-list" id="my-diaries-list">
+                            <!-- 동적으로 로드됩니다 -->
+                        </div>
+                    </div>
+
+                    <!-- 계정 설정 -->
+                    <div class="tab-content" id="settings-tab">
+                        <h3>계정 설정</h3>
+                        <div class="settings-section">
+                            <h4>개인정보</h4>
+                            <p><strong>이메일:</strong> <span id="settings-email"></span></p>
+                            <p><strong>가입일:</strong> <span id="settings-joindate"></span></p>
+                            <p><strong>로그인 방식:</strong> <span id="settings-provider"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 모달들 -->
+    <!-- 로그인 모달 -->
+    <div id="login-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>로그인</h3>
+                <button class="modal-close" onclick="closeModal('login-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="login-form">
+                    <div class="form-group">
+                        <label>아이디</label>
+                        <input type="text" id="login-username" placeholder="아이디를 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label>비밀번호</label>
+                        <input type="password" id="login-password" placeholder="비밀번호를 입력하세요" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">로그인</button>
+                </form>
+
+                <div class="social-login">
+                    <p>또는 소셜 계정으로 로그인</p>
+                    <div class="social-buttons">
+                        <a href="/api/auth/google" class="btn btn-google">
+                            <i class="fab fa-google"></i> Google
+                        </a>
+                        <a href="/api/auth/kakao" class="btn btn-kakao">
+                            <i class="fas fa-comment"></i> Kakao
+                        </a>
+                        <a href="/api/auth/naver" class="btn btn-naver">
+                            <i class="fab fa-naver"></i> Naver
+                        </a>
+                    </div>
+                </div>
+
+                <p class="modal-footer">
+                    계정이 없으신가요? <a href="#" onclick="closeModal('login-modal'); showRegisterModal();">회원가입</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 회원가입 모달 -->
+    <div id="register-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>회원가입</h3>
+                <button class="modal-close" onclick="closeModal('register-modal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="register-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>이름</label>
+                            <input type="text" id="register-name" placeholder="이름을 입력하세요" required>
+                        </div>
+                        <div class="form-group">
+                            <label>닉네임</label>
+                            <input type="text" id="register-nickname" placeholder="닉네임을 입력하세요" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>이메일</label>
+                        <input type="email" id="register-email" placeholder="이메일을 입력하세요" required>
+                    </div>
+                    <div class="form-group">
+                        <label>아이디</label>
+                        <div class="input-group">
+                            <input type="text" id="register-username" placeholder="아이디를 입력하세요 (영문, 숫자 4-20자)" required>
+                            <button type="button" class="btn btn-outline" onclick="checkUsername()">중복확인</button>
+                        </div>
+                        <div class="form-feedback" id="username-feedback"></div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>비밀번호</label>
+                            <input type="password" id="register-password" placeholder="비밀번호 (8자 이상)" required>
+                        </div>
+                        <div class="form-group">
+                            <label>비밀번호 확인</label>
+                            <input type="password" id="register-confirm-password" placeholder="비밀번호 확인" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-full">회원가입</button>
+                </form>
+
+                <p class="modal-footer">
+                    이미 계정이 있으신가요? <a href="#" onclick="closeModal('register-modal'); showLoginModal();">로그인</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 알림 모달 -->
+    <div id="alert-modal" class="modal">
+        <div class="modal-content modal-small">
+            <div class="modal-body">
+                <div class="alert-icon" id="alert-icon"></div>
+                <h3 id="alert-title">알림</h3>
+                <p id="alert-message">메시지</p>
+                <button class="btn btn-primary" onclick="closeModal('alert-modal')">확인</button>
+            </div>
+        </div>
+    </div>
+
+    <input type="file" id="profile-image-input" accept="image/*" style="display: none;" onchange="handleProfileImageUpload(event)">
+
+    <script src="/js/app.js"></script>
+</body>
+</html>

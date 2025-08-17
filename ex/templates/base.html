@@ -1,0 +1,55 @@
+<!-- templates/base.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title if title else "반려동물의 목소리가 들려" }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script defer src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div id="weather">날씨 불러오는 중...</div>
+            <div class="auth-buttons">
+                {% if logged_in %}
+                    <button onclick="logout()">로그아웃</button>
+                {% else %}
+                    <button onclick="login()">로그인</button>
+                {% endif %}
+                <button onclick="showNotifications()">🔔 알림</button>
+            </div>
+        </div>
+        <div class="header-right">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="로고" class="logo">
+            <span class="service-title">반려동물의 목소리가 들려</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="#">커뮤니티</a></li>
+            <li><a href="#">플레이스</a></li>
+            <li><a href="#">투어스팟</a></li>
+            <li><a href="#">데일리케어</a></li>
+            <li><a href="#">너의 일기장</a></li>
+            <li><a href="#">마이페이지</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main content -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 반려동물의 목소리가 들려. All rights reserved.</p>
+        <p>문의: support@petvoice.com | 사업자등록번호: 123-45-67890</p>
+    </footer>
+</body>
+</html>
