@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>반려동물 챗봇</title>
+    <style>
+        /* 챗봇 버튼 스타일 */
+        .chatbot-trigger {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            border: none;
+            border-radius: 50%;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            cursor: move;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .chatbot-trigger:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .chatbot-trigger svg {
+            width: 30px;
+            height: 30px;
+            fill: white;
+        }
+
+        /* 챗봇 창 스타일 */
+        .chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 500px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            z-index: 1001;
+            overflow: hidden;
+        }
+
+        .chatbot-window.active {
+            display: flex;
+        }
+
+        /* 챗봇 헤더 */
+        .chatbot-header {
+            background: linear-gradient(135deg, #ff6b6b, #ffa726);
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: move;
+        }
+
+        .chatbot-title {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .chatbot-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .control-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* 반려동물 선택 */
+        .pet-selector {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .pet-select {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        /* 채팅 영역 */
+        .chat-messages {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background: #007bff;
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot {
+            background: #f1f3f4;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .message-time {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        /* 입력 영역 */
+        .chat-input-area {
+            padding: 16px;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .chat-input:focus {
+            border-color: #007bff;
+        }
+
+        .send-btn {
+            background: #007bff;
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #0056b3;
+        }
+
+        .send-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        /* 로딩 애니메이션 */
+        .typing-indicator {
+            display: none;
+            padding: 12px 16px;
+            background: #f1f3f4;
+            border-radius: 18px;
+            border-bottom-left-radius: 4px;
+            align-self: flex-start;
+            max-width: 80px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: #999;
+            border-radius: 50%;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
+        }
+
+        /* 히스토리 버튼 */
+        .history-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 8px;
+            transition: all 0.2s;
+        }
+
+        .history-btn:hover {
+            background: #f5f5f5;
+        }
+
+        /* 스크롤바 스타일 */
+        .chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 3px;
+        }
+
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .chatbot-window {
+                width: 300px;
+                height: 450px;
+                right: 20px;
+                bottom: 90px;
+            }
+            
+            .chatbot-trigger {
+                right: 20px;
+                bottom: 20px;
+                width: 50px;
+                height: 50px;
+            }
+        }
+
+        /* 드래그 중일 때 */
+        .dragging {
+            transition: none !important;
+            user-select: none;
+        }
+
+        /* 히스토리 모달 */
+        .history-modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .history-modal.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-header {
+            padding: 16px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .history-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .history-item {
+            padding: 12px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .history-item:hover {
+            background: #f5f5f5;
+        }
+
+        .history-date {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 4px;
+        }
+
+        .history-preview {
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- 메인 페이지 컨텐츠 (데모용) -->
+    <div style="padding: 20px; height: 200vh;">
+        <h1>반려동물 케어 서비스</h1>
+        <p>페이지를 스크롤하면서 하단의 챗봇 버튼을 확인해보세요.</p>
+        <p>챗봇 버튼과 창은 드래그하여 이동할 수 있습니다.</p>
+    </div>
+
+    <!-- 챗봇 트리거 버튼 -->
+    <button class="chatbot-trigger" id="chatbotTrigger">
+        <svg viewBox="0 0 24 24">
+            <path d="M20 2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+        </svg>
+    </button>
+
+    <!-- 챗봇 창 -->
+    <div class="chatbot-window" id="chatbotWindow">
+        <!-- 헤더 -->
+        <div class="chatbot-header" id="chatbotHeader">
+            <div class="chatbot-title" id="chatbotTitle">반려동물과 대화하기</div>
+            <div class="chatbot-controls">
+                <button class="control-btn" id="historyBtn" title="대화 기록">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M13,3A9,9 0 0,0 4,12H1L4.96,16.03L9,12H6A7,7 0 0,1 13,5A7,7 0 0,1 20,12A7,7 0 0,1 13,19C11.07,19 9.32,18.21 8.06,16.94L6.64,18.36C8.27,20 10.5,21 13,21A9,9 0 0,0 22,12A9,9 0 0,0 13,3Z"/>
+                    </svg>
+                </button>
+                <button class="control-btn" id="closeBtn" title="닫기">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- 반려동물 선택 -->
+        <div class="pet-selector">
+            <select class="pet-select" id="petSelect">
+                <option value="">반려동물을 선택하세요</option>
+            </select>
+        </div>
+
+        <!-- 채팅 메시지 영역 -->
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot">
+                <div>안녕하세요! 반려동물을 선택하고 대화를 시작해보세요 🐾</div>
+                <div class="message-time">지금</div>
+            </div>
+        </div>
+
+        <!-- 타이핑 인디케이터 -->
+        <div class="typing-indicator" id="typingIndicator">
+            <div class="typing-dots">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+
+        <!-- 입력 영역 -->
+        <div class="chat-input-area">
+            <input type="text" class="chat-input" id="chatInput" placeholder="메시지를 입력하세요..." disabled>
+            <button class="send-btn" id="sendBtn" disabled>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                </svg>
+            </button>
+        </div>
+
+        <!-- 히스토리 모달 -->
+        <div class="history-modal" id="historyModal">
+            <div class="history-header">
+                <h3>대화 기록</h3>
+                <button class="control-btn" id="closeHistoryBtn" style="color: #333;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                    </svg>
+                </button>
+            </div>
+            <div class="history-list" id="historyList">
+                <!-- 히스토리 아이템들이 동적으로 추가됨 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class PetChatbot {
+            constructor() {
+                this.initElements();
+                this.initEventListeners();
+                this.loadPets();
+                this.loadChatHistory();
+                this.currentPetId = null;
+                this.currentConversation = [];
+                this.isDragging = false;
+                this.dragOffset = { x: 0, y: 0 };
+            }
+
+            initElements() {
+                this.trigger = document.getElementById('chatbotTrigger');
+                this.window = document.getElementById('chatbotWindow');
+                this.header = document.getElementById('chatbotHeader');
+                this.title = document.getElementById('chatbotTitle');
+                this.closeBtn = document.getElementById('closeBtn');
+                this.historyBtn = document.getElementById('historyBtn');
+                this.petSelect = document.getElementById('petSelect');
+                this.chatMessages = document.getElementById('chatMessages');
+                this.chatInput = document.getElementById('chatInput');
+                this.sendBtn = document.getElementById('sendBtn');
+                this.typingIndicator = document.getElementById('typingIndicator');
+                this.historyModal = document.getElementById('historyModal');
+                this.historyList = document.getElementById('historyList');
+                this.closeHistoryBtn = document.getElementById('closeHistoryBtn');
+            }
+
+            initEventListeners() {
+                // 챗봇 트리거 버튼
+                this.trigger.addEventListener('click', () => this.toggleChatbot());
+                
+                // 드래그 이벤트 (트리거 버튼)
+                this.trigger.addEventListener('mousedown', (e) => this.startDrag(e, this.trigger));
+                
+                // 드래그 이벤트 (챗봇 헤더)
+                this.header.addEventListener('mousedown', (e) => this.startDrag(e, this.window));
+                
+                // 글로벌 드래그 이벤트
+                document.addEventListener('mousemove', (e) => this.onDrag(e));
+                document.addEventListener('mouseup', () => this.stopDrag());
+                
+                // 챗봇 컨트롤
+                this.closeBtn.addEventListener('click', () => this.closeChatbot());
+                this.historyBtn.addEventListener('click', () => this.showHistory());
+                this.closeHistoryBtn.addEventListener('click', () => this.hideHistory());
+                
+                // 반려동물 선택
+                this.petSelect.addEventListener('change', () => this.onPetChange());
+                
+                // 메시지 전송
+                this.sendBtn.addEventListener('click', () => this.sendMessage());
+                this.chatInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.sendMessage();
+                });
+                
+                // 입력 필드 활성화
+                this.chatInput.addEventListener('input', () => {
+                    this.sendBtn.disabled = !this.chatInput.value.trim();
+                });
+            }
+
+            // 드래그 관련 메서드
+            startDrag(e, element) {
+                if (e.target.closest('.control-btn')) return;
+                
+                this.isDragging = true;
+                this.dragTarget = element;
+                
+                const rect = element.getBoundingClientRect();
+                this.dragOffset.x = e.clientX - rect.left;
+                this.dragOffset.y = e.clientY - rect.top;
+                
+                element.classList.add('dragging');
+                e.preventDefault();
+            }
+
+            onDrag(e) {
+                if (!this.isDragging || !this.dragTarget) return;
+                
+                const x = e.clientX - this.dragOffset.x;
+                const y = e.clientY - this.dragOffset.y;
+                
+                // 화면 경계 확인
+                const maxX = window.innerWidth - this.dragTarget.offsetWidth;
+                const maxY = window.innerHeight - this.dragTarget.offsetHeight;
+                
+                const boundedX = Math.max(0, Math.min(maxX, x));
+                const boundedY = Math.max(0, Math.min(maxY, y));
+                
+                this.dragTarget.style.left = boundedX + 'px';
+                this.dragTarget.style.top = boundedY + 'px';
+                this.dragTarget.style.right = 'auto';
+                this.dragTarget.style.bottom = 'auto';
+            }
+
+            stopDrag() {
+                if (this.isDragging && this.dragTarget) {
+                    this.dragTarget.classList.remove('dragging');
+                    this.isDragging = false;
+                    this.dragTarget = null;
+                }
+            }
+
+            // 챗봇 표시/숨김
+            toggleChatbot() {
+                if (this.isDragging) return;
+                this.window.classList.toggle('active');
+            }
+
+            closeChatbot() {
+                this.window.classList.remove('active');
+            }
+
+            // 반려동물 로드
+            async loadPets() {
+                try {
+                    // API 호출 시뮬레이션 - 실제로는 Flask API 호출
+                    const response = await this.mockApiCall('/api/pets');
+                    const pets = response.pets || [];
+                    
+                    this.petSelect.innerHTML = '<option value="">반려동물을 선택하세요</option>';
+                    pets.forEach(pet => {
+                        const option = document.createElement('option');
+                        option.value = pet.id;
+                        option.textContent = `${pet.name} (${pet.species})`;
+                        option.dataset.persona = JSON.stringify(pet.persona);
+                        this.petSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('반려동물 정보 로드 실패:', error);
+                }
+            }
+
+            // 반려동물 변경 시
+            onPetChange() {
+                const selectedOption = this.petSelect.selectedOptions[0];
+                if (selectedOption && selectedOption.value) {
+                    this.currentPetId = selectedOption.value;
+                    const petName = selectedOption.textContent.split(' (')[0];
+                    this.title.textContent = `${petName}와 대화하기`;
+                    
+                    this.chatInput.disabled = false;
+                    this.chatInput.placeholder = `${petName}에게 메시지를 보내세요...`;
+                    
+                    this.loadConversation(this.currentPetId);
+                } else {
+                    this.currentPetId = null;
+                    this.title.textContent = '반려동물과 대화하기';
+                    this.chatInput.disabled = true;
+                    this.chatInput.placeholder = '반려동물을 먼저 선택해주세요';
+                    this.sendBtn.disabled = true;
+                }
+            }
+
+            // 대화 내용 로드
+            async loadConversation(petId) {
+                try {
+                    const response = await this.mockApiCall(`/api/chat/history/${petId}`);
+                    this.currentConversation = response.messages || [];
+                    this.renderMessages();
+                } catch (error) {
+                    console.error('대화 기록 로드 실패:', error);
+                    this.currentConversation = [];
+                    this.renderMessages();
+                }
+            }
+
+            // 메시지 렌더링
+            renderMessages() {
+                this.chatMessages.innerHTML = '';
+                
+                if (this.currentConversation.length === 0) {
+                    const welcomeMsg = document.createElement('div');
+                    welcomeMsg.className = 'message bot';
+                    welcomeMsg.innerHTML = `
+                        <div>안녕! 나와 대화해보자! 🐾</div>
+                        <div class="message-time">${this.formatTime(new Date())}</div>
+                    `;
+                    this.chatMessages.appendChild(welcomeMsg);
+                } else {
+                    this.currentConversation.forEach(msg => {
+                        this.addMessageToChat(msg.content, msg.sender, new Date(msg.timestamp), false);
+                    });
+                }
+                
+                this.scrollToBottom();
+            }
+
+            // 메시지 전송
+            async sendMessage() {
+                const message = this.chatInput.value.trim();
+                if (!message || !this.currentPetId) return;
+
+                // 사용자 메시지 추가
+                this.addMessageToChat(message, 'user', new Date());
+                this.chatInput.value = '';
+                this.sendBtn.disabled = true;
+
+                // 타이핑 인디케이터 표시
+                this.showTypingIndicator();
+
+                try {
+                    // AI 응답 요청
+                    const response = await this.sendToAI(message);
+                    
+                    // 타이핑 인디케이터 숨김
+                    this.hideTypingIndicator();
+                    
+                    // AI 응답 추가
+                    this.addMessageToChat(response.content, 'bot', new Date());
+                    
+                    // 대화 저장
+                    await this.saveConversation();
+                    
+                } catch (error) {
+                    this.hideTypingIndicator();
+                    this.addMessageToChat('죄송해요, 지금은 대답할 수 없어요. 잠시 후 다시 시도해주세요.', 'bot', new Date());
+                    console.error('AI 응답 오류:', error);
+                }
+            }
+
+            // AI에게 메시지 전송
+            async sendToAI(message) {
+                const selectedOption = this.petSelect.selectedOptions[0];
+                const persona = JSON.parse(selectedOption.dataset.persona || '{}');
+                
+                const requestData = {
+                    message: message,
+                    pet_id: this.currentPetId,
+                    persona: persona,
+                    conversation_history: this.currentConversation.slice(-10) // 최근 10개 메시지만
+                };
+
+                return await this.mockApiCall('/api/chat/send', 'POST', requestData);
+            }
+
+            // 메시지를 채팅창에 추가
+            addMessageToChat(content, sender, timestamp, save = true) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${sender}`;
+                messageDiv.innerHTML = `
+                    <div>${content}</div>
+                    <div class="message-time">${this.formatTime(timestamp)}</div>
+                `;
+                
+                // 타이핑 인디케이터 앞에 삽입
+                this.chatMessages.insertBefore(messageDiv, this.typingIndicator);
+                
+                if (save) {
+                    this.currentConversation.push({
+                        content: content,
+                        sender: sender,
+                        timestamp: timestamp.toISOString()
+                    });
+                }
+                
+                this.scrollToBottom();
+            }
+
+            // 타이핑 인디케이터
+            showTypingIndicator() {
+                this.typingIndicator.style.display = 'block';
+                this.scrollToBottom();
+            }
+
+            hideTypingIndicator() {
+                this.typingIndicator.style.display = 'none';
+            }
+
+            // 대화 저장
+            async saveConversation() {
+                try {
+                    await this.mockApiCall('/api/chat/save', 'POST', {
+                        pet_id: this.currentPetId,
+                        messages: this.currentConversation
+                    });
+                } catch (error) {
+                    console.error('대화 저장 실패:', error);
+                }
+            }
+
+            // 대화 기록 표시
+            async showHistory() {
+                try {
+                    const response = await this.mockApiCall('/api/chat/sessions');
+                    const sessions = response.sessions || [];
+                    
+                    this.historyList.innerHTML = '';
+                    sessions.forEach(session => {
+                        const item = document.createElement('div');
+                        item.className = 'history-item';
+                        item.innerHTML = `
+                            <div class="history-date">${this.formatDate(new Date(session.last_message_time))}</div>
+                            <div class="history-preview">${session.pet_name}: ${session.last_message}</div>
+                        `;
+                        item.addEventListener('click', () => this.loadHistorySession(session));
+                        this.historyList.appendChild(item);
+                    });
+                    
+                    this.historyModal.classList.add('active');
+                } catch (error) {
+                    console.error('대화 기록 로드 실패:', error);
+                }
+            }
+
+            hideHistory() {
+                this.historyModal.classList.remove('active');
+            }
+
+            // 히스토리 세션 로드
+            async loadHistorySession(session) {
+                this.petSelect.value = session.pet_id;
+                this.onPetChange();
+                this.hideHistory();
+            }
+
+            // 유틸리티 메서드
+            formatTime(date) {
+                return date.toLocaleTimeString('ko-KR', { 
+                    hour: '2-digit', 
+                    minute: '2-digit' 
+                });
+            }
+
+            formatDate(date) {
+                return date.toLocaleDateString('ko-KR', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+
+            scrollToBottom() {
+                setTimeout(() => {
+                    this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+                }, 100);
+            }
+
+            // Mock API 호출 (실제 구현에서는 fetch 사용)
+            async mockApiCall(url, method = 'GET', data = null) {
+                // 실제 구현에서는 다음과 같이 사용:
+                /*
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: data ? JSON.stringify(data) : null
+                });
+                return await response.json();
+                */
+                
+                // Mock 데이터
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        if (url === '/api/pets') {
+                            resolve({
+                                pets: [
+                                    {
+                                        id: 1,
+                                        name: '멍멍이',
+                                        species: '강아지',
+                                        persona: {
+                                            name: '멍멍이',
+                                            species: '강아지',
+                                            personality: '활발하고 친근함',
+                                            speaking_style: '귀엽고 애교있게',
+                                            user_call: '주인님',
+                                            breed: '골든 리트리버',
+                                            likes: '산책, 공놀이',
+                                            dislikes: '큰 소리',
+                                            etc: '꼬리를 많이 흔들어요'
+                                        }
+                                    },
+                                    {
+                                        id: 2,
+                                        name: '야옹이',
+                                        species: '고양이',
+                                        persona: {
+                                            name: '야옹이',
+                                            species: '고양이',
+                                            personality: '도도하지만 애정많음',
+                                            speaking_style: '츤데레',
+                                            user_call: '집사',
+                                            breed: '러시안 블루',
+                                            likes: '햇볕쬐기, 참치',
+                                            dislikes: '물, 시끄러운 소리',
+                                            etc: '새벽에 활발해져요'
+                                        }
+                                    }
+                                ]
+                            });
+                        } else if (url.startsWith('/api/chat/history/')) {
+                            resolve({
+                                messages: [
+                                    {
+                                        content: '안녕! 오늘 하루 어땠어?',
+                                        sender: 'bot',
+                                        timestamp: new Date(Date.now() - 3600000).toISOString()
+                                    },
+                                    {
+                                        content: '오늘 산책 갔다왔어!',
+                                        sender: 'user',
+                                        timestamp: new Date(Date.now() - 3500000).toISOString()
+                                    }
+                                ]
+                            });
+                        } else if (url === '/api/chat/send') {
+                            // AI 응답 시뮬레이션
+                            const responses = [
+                                '와! 정말 좋았겠다! 나도 같이 갔으면 좋았을텐데 🐾',
+                                '오늘 날씨가 좋았지? 밖에 나가니까 기분이 어때?',
+                                '그래그래! 나랑 놀아줘서 고마워! 🥰',
+                                '주인님이 행복하면 나도 행복해! 히히',
+                                '오늘도 우리 함께 있어서 좋았어!'
+                            ];
+                            resolve({
+                                content: responses[Math.floor(Math.random() * responses.length)]
+                            });
+                        } else if (url === '/api/chat/sessions') {
+                            resolve({
+                                sessions: [
+                                    {
+                                        pet_id: 1,
+                                        pet_name: '멍멍이',
+                                        last_message: '산책 가고 싶어!',
+                                        last_message_time: new Date(Date.now() - 86400000).toISOString()
+                                    },
+                                    {
+                                        pet_id: 2,
+                                        pet_name: '야옹이',
+                                        last_message: '참치 주세요...',
+                                        last_message_time: new Date(Date.now() - 172800000).toISOString()
+                                    }
+                                ]
+                            });
+                        } else {
+                            resolve({ success: true });
+                        }
+                    }, 1000);
+                });
+            }
+
+            async loadChatHistory() {
+                // 페이지 로드 시 기본 설정
+            }
+        }
+
+        // 챗봇 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            new PetChatbot();
+        });
+    </script>
+</body>
+</html>

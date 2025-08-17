@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MyPet's Voice - 로그인 상태 (데모)</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* 기본 스타일 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #ff5252;
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            color: #ff6b6b;
+            border: 2px solid #ff6b6b;
+        }
+
+        .btn-outline:hover {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .btn-large {
+            padding: 15px 30px;
+            font-size: 16px;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* 네비게이션 */
+        .navbar {
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 70px;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ff6b6b;
+        }
+
+        .nav-logo i {
+            margin-right: 8px;
+            font-size: 28px;
+        }
+
+        .nav-menu {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-link {
+            color: #333;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .nav-user {
+            position: relative;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 5px 10px;
+            border-radius: 8px;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-profile:hover {
+            background-color: #f5f5f5;
+        }
+
+        .user-profile img {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .user-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            min-width: 150px;
+            display: none;
+            z-index: 1001;
+        }
+
+        .user-menu.active {
+            display: block;
+        }
+
+        .user-menu a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .user-menu a:hover {
+            background-color: #f5f5f5;
+        }
+
+        /* 메인 컨테이너 */
+        .main-container {
+            min-height: calc(100vh - 70px);
+        }
+
+        .section {
+            display: none;
+            padding: 40px 0;
+        }
+
+        .section.active {
+            display: block;
+        }
+
+        /* 데모 알림 */
+        .demo-notice {
+            background-color: #d1ecf1;
+            border: 1px solid #bee5eb;
+            color: #0c5460;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        /* 채팅 섹션 */
+        .chat-container {
+            max-width: 800px;
+            margin: 0 auto;
+            height: calc(100vh - 150px);
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .chat-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .pet-selector select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-bubble {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 18px;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background-color: #ff6b6b;
+            color: white;
+            border-bottom-right-radius: 6px;
+        }
+
+        .message.pet .message-bubble {
+            background-color: white;
+            color: #333;
+            border: 1px solid #ddd;
+            border-bottom-left-radius: 6px;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            background-color: white;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .chat-input input:focus {
+            border-color: #ff6b6b;
+        }
+
+        .chat-input button {
+            width: 45px;
+            height: 45px;
+            border: none;
+            background-color: #ff6b6b;
+            color: white;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .chat-input button:hover {
+            background-color: #ff5252;
+        }
+
+        /* 일기 섹션 */
+        .diary-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .diary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .diary-filters {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            gap: 20px;
+        }
+
+        .view-toggle {
+            display: flex;
+            border: 2px solid #ff6b6b;
+            border-radius: 25px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 8px 20px;
+            border: none;
+            background-color: transparent;
+            color: #ff6b6b;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .view-btn.active {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .diary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .diary-card {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .diary-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .diary-image {
+            width: 100%;
+            height: 200px;
+            background-color: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .diary-content {
+            padding: 20px;
+        }
+
+        .diary-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .diary-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .diary-preview {
+            color: #666;
+            line-height: 1.4;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .diary-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid #eee;
+            padding-top: 15px;
+        }
+
+        .diary-pet {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .diary-pet-avatar {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: #ff6b6b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .diary-stats {
+            display: flex;
+            gap: 15px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        /* 마이페이지 섹션 */
+        .mypage-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 40px;
+        }
+
+        .mypage-sidebar {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+            height: fit-content;
+        }
+
+        .profile-card {
+            padding: 30px;
+            text-align: center;
+            border-bottom: 1px solid #eee;
+        }
+
+        .profile-image {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 0 auto 20px;
+        }
+
+        .profile-image img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .image-upload {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 32px;
+            height: 32px;
+            background-color: #ff6b6b;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .profile-card h3 {
+            font-size: 18px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .profile-card p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .menu-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border: none;
+            background-color: transparent;
+            color: #666;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.3s ease;
+        }
+
+        .menu-item:hover,
+        .menu-item.active {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .menu-item i {
+            font-size: 16px;
+            width: 20px;
+        }
+
+        .mypage-content {
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 30px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .pets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .pet-card-mypage {
+            background-color: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .pet-card-mypage:hover {
+            transform: translateY(-3px);
+        }
+
+        .pet-card-mypage img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+
+        .pet-card-mypage h4 {
+            font-size: 16px;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .pet-card-mypage p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .pet-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+
+        .pet-actions button {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background-color 0.3s ease;
+        }
+
+        .pet-edit {
+            background-color: #ff6b6b;
+            color: white;
+        }
+
+        .pet-delete {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        /* 폼 스타일 */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #ff6b6b;
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .nav-menu {
+                display: none;
+            }
+            
+            .mypage-container {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .diary-filters {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 데모 알림 -->
+    <div class="demo-notice">
+        🔐 로그인된 상태의 MyPet's Voice 데모 페이지입니다. (로그인 사용자: 반려동물러버)
+    </div>
+
+    <!-- 네비게이션 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-paw"></i>
+                <span>MyPet's Voice</span>
+            </div>
+            
+            <div class="nav-menu">
+                <a href="#" class="nav-link" onclick="showSection('home')">홈</a>
+                <a href="#" class="nav-link active" onclick="showSection('chat')">채팅</a>
+                <a href="#" class="nav-link" onclick="showSection('diary')">일기</a>
+                <a href="#" class="nav-link" onclick="showSection('community')">커뮤니티</a>
+                <a href="#" class="nav-link" onclick="showSection('mypage')">마이페이지</a>
+            </div>
+
+            <div class="nav-user">
+                <div class="user-profile" onclick="toggleUserMenu()">
+                    <img src="https://via.placeholder.com/36x36/ff6b6b/ffffff?text=User" alt="프로필" id="user-avatar">
+                    <span id="user-nickname">반려동물러버</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="user-menu" id="user-menu">
+                    <a href="#" onclick="showSection('mypage')"><i class="fas fa-user"></i> 마이페이지</a>
+                    <a href="#" onclick="alert('로그아웃 데모')"><i class="fas fa-sign-out-alt"></i> 로그아웃</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 컨테이너 -->
+    <main class="main-container">
+        <!-- 채팅 섹션 -->
+        <section id="chat" class="section active">
+            <div class="chat-container">
+                <div class="chat-header">
+                    <div class="pet-selector">
+                        <select id="chat-pet-select" onchange="selectChatPet()">
+                            <option value="">대화할 반려동물을 선택하세요</option>
+                            <option value="1">멍멍이 (개)</option>
+                            <option value="2">야옹이 (고양이)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="chat-messages" id="chat-messages">
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🐾</div>
+                        <p>반려동물을 선택하고 대화를 시작해보세요!</p>
+                    </div>
+                </div>
+
+                <div class="chat-input-container">
+                    <div class="chat-input">
+                        <input type="text" id="chat-input" placeholder="메시지를 입력하세요..." onkeypress="handleChatKeyPress(event)" disabled>
+                        <button id="chat-send-btn" onclick="sendMessage()" disabled>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 일기 섹션 -->
+        <section id="diary" class="section">
+            <div class="diary-container">
+                <div class="diary-header">
+                    <h2>반려동물 일기</h2>
+                    <div class="diary-actions">
+                        <button class="btn btn-primary" onclick="alert('일기 작성 기능 (데모)')">
+                            <i class="fas fa-plus"></i> 일기 쓰기
+                        </button>
+                    </div>
+                </div>
+
+                <div class="diary-filters">
+                    <select id="diary-pet-filter">
+                        <option value="">모든 반려동물</option>
+                        <option value="1">멍멍이</option>
+                        <option value="2">야옹이</option>
+                    </select>
+                    <div class="view-toggle">
+                        <button class="view-btn active" onclick="toggleDiaryView(this, 'my')">내 일기</button>
+                        <button class="view-btn" onclick="toggleDiaryView(this, 'public')">공개 일기</button>
+                    </div>
+                </div>
+
+                <div class="diary-grid" id="diary-grid">
+                    <div class="diary-card">
+                        <div class="diary-image">🐕</div>
+                        <div class="diary-content">
+                            <div class="diary-meta">
+                                <span>2025-01-10</span>
+                                <span>☀️ 맑음 15°C</span>
+                            </div>
+                            <div class="diary-title">오늘 산책이 너무 즐거웠어!</div>
+                            <div class="diary-preview">안녕! 멍멍이야~ 🐕
+
+오늘 한강공원 산책이 정말 최고였어! 주인님과 함께 넓은 잔디밭을 뛰어다니는 게 너무 행복했어. 
+
+새로운 친구들도 많이 만났어! 특히 같은 골든 리트리버 친구랑 공놀이를 했는데, 정말 신났어~ 🎾
+
+주인님이 나를 위해 시간을 내주셔서 고마워! 내일은 또 어떤 재미있는 일이 있을까? 💕</div>
+                            <div class="diary-footer">
+                                <div class="diary-pet">
+                                    <div class="diary-pet-avatar">🐕</div>
+                                    <span>멍멍이</span>
+                                </div>
+                                <div class="diary-stats">
+                                    <span>❤️ 15</span>
+                                    <span>👀 32</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="diary-card">
+                        <div class="diary-image">🐱</div>
+                        <div class="diary-content">
+                            <div class="diary-meta">
+                                <span>2025-01-09</span>
+                                <span>☁️ 흐림 12°C</span>
+                            </div>
+                            <div class="diary-title">새 장난감이 왔어!</div>
+                            <div class="diary-preview">냥~ 야옹이야 🐱
+
+오늘 집사가 나를 위해 새로운 선물을 사왔어! 깃털이 달린 막대기인데, 이걸 보니까 야생의 본능이 깨어나는 것 같아.
+
+처음에는 도도한 척 관심 없는 듯했지만... 사실 너무 신났어! 깃털이 흔들릴 때마다 나도 모르게 발톱이 나오더라구 😸</div>
+                            <div class="diary-footer">
+                                <div class="diary-pet">
+                                    <div class="diary-pet-avatar">🐱</div>
+                                    <span>야옹이</span>
+                                </div>
+                                <div class="diary-stats">
+                                    <span>❤️ 22</span>
+                                    <span>👀 45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="diary-card">
+                        <div class="diary-image">🐕</div>
+                        <div class="diary-content">
+                            <div class="diary-meta">
+                                <span>2025-01-08</span>
+                                <span>🌧️ 비 8°C</span>
+                            </div>
+                            <div class="diary-title">비 오는 날의 실내 놀이</div>
+                            <div class="diary-preview">오늘은 비가 와서 산책을 못 갔어... 조금 심심했지만 주인님이 집에서 재미있는 놀이를 해줬어! 숨바꼭질도 하고 공놀이도 했어. 비록 밖에 나가진 못했지만 주인님과 함께 있어서 행복했어!</div>
+                            <div class="diary-footer">
+                                <div class="diary-pet">
+                                    <div class="diary-pet-avatar">🐕</div>
+                                    <span>멍멍이</span>
+                                </div>
+                                <div class="diary-stats">
+                                    <span>❤️ 8</span>
+                                    <span>👀 18</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 커뮤니티 섹션 -->
+        <section id="community" class="section">
+            <div class="diary-container">
+                <div class="diary-header">
+                    <h2>커뮤니티</h2>
+                    <button class="btn btn-primary" onclick="alert('글쓰기 기능 (데모)')">
+                        <i class="fas fa-plus"></i> 글쓰기
+                    </button>
+                </div>
+
+                <div style="background-color: white; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); overflow: hidden; margin-bottom: 40px;">
+                    <div style="padding: 20px; border-bottom: 1px solid #eee;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background-color: #ddd;"></div>
+                                <div>
+                                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 2px;">멍멍맘</h4>
+                                    <p style="font-size: 12px; color: #666;">1시간 전</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 5px;">
+                                <span style="background-color: #ff6b6b; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">산책해요</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #333;">한강공원에서 같이 산책하실 분!</div>
+                        <div style="color: #666; line-height: 1.5; margin-bottom: 15px;">이번 주말 한강공원에서 강아지들과 함께 산책하실 분 모집해요~ 골든 리트리버 멍멍이와 함께 해요!</div>
+                        <div style="display: flex; gap: 20px; font-size: 12px; color: #666;">
+                            <span>❤️ 15</span>
+                            <span>💬 8</span>
+                            <span>👀 89</span>
+                        </div>
+                    </div>
+
+                    <div style="padding: 20px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 36px; height: 36px; border-radius: 50%; background-color: #ddd;"></div>
+                                <div>
+                                    <h4 style="font-size: 14px; font-weight: 600; margin-bottom: 2px;">고양이집사</h4>
+                                    <p style="font-size: 12px; color: #666;">3시간 전</p>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 5px;">
+                                <span style="background-color: #ff6b6b; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">질문</span>
+                            </div>
+                        </div>
+                        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px; color: #333;">고양이가 밤에 너무 활발해요 ㅠㅠ</div>
+                        <div style="color: #666; line-height: 1.5; margin-bottom: 15px;">야옹이가 밤만 되면 집안을 뛰어다니면서 난리를 피워요. 낮에는 잠만 자고... 이런 행동이 정상인가요?</div>
+                        <div style="display: flex; gap: 20px; font-size: 12px; color: #666;">
+                            <span>❤️ 8</span>
+                            <span>💬 23</span>
+                            <span>👀 134</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 마이페이지 섹션 -->
+        <section id="mypage" class="section">
+            <div class="mypage-container">
+                <div class="mypage-sidebar">
+                    <div class="profile-card">
+                        <div class="profile-image">
+                            <img src="https://via.placeholder.com/100x100/ff6b6b/ffffff?text=User" alt="프로필" id="profile-image">
+                            <div class="image-upload" onclick="alert('이미지 업로드 기능 (데모)')">
+                                <i class="fas fa-camera"></i>
+                            </div>
+                        </div>
+                        <h3 id="profile-nickname">반려동물러버</h3>
+                        <p id="profile-email">demo@mypetsvoice.com</p>
+                    </div>
+
+                    <div class="menu-list">
+                        <button class="menu-item active" onclick="showMypageTab(this, 'profile')">
+                            <i class="fas fa-user"></i> 프로필 설정
+                        </button>
+                        <button class="menu-item" onclick="showMypageTab(this, 'pets')">
+                            <i class="fas fa-paw"></i> 반려동물 관리
+                        </button>
+                        <button class="menu-item" onclick="showMypageTab(this, 'diaries')">
+                            <i class="fas fa-book"></i> 내 일기
+                        </button>
+                        <button class="menu-item" onclick="showMypageTab(this, 'settings')">
+                            <i class="fas fa-cog"></i> 계정 설정
+                        </button>
+                    </div>
+                </div>
+
+                <div class="mypage-content">
+                    <!-- 프로필 설정 -->
+                    <div class="tab-content active" id="profile-tab">
+                        <h3>프로필 설정</h3>
+                        <form onsubmit="handleProfileUpdate(event)">
+                            <div class="form-group">
+                                <label>닉네임</label>
+                                <input type="text" value="반려동물러버" placeholder="닉네임을 입력하세요">
+                            </div>
+                            <button type="submit" class="btn btn-primary">저장 (데모)</button>
+                        </form>
+                    </div>
+
+                    <!-- 반려동물 관리 -->
+                    <div class="tab-content" id="pets-tab">
+                        <div class="tab-header">
+                            <h3>반려동물 관리</h3>
+                            <button class="btn btn-primary" onclick="alert('반려동물 추가 기능 (데모)')">
+                                <i class="fas fa-plus"></i> 반려동물 추가
+                            </button>
+                        </div>
+                        <div class="pets-grid">
+                            <div class="pet-card-mypage">
+                                <img src="https://via.placeholder.com/80x80/ff6b6b/ffffff?text=🐕" alt="멍멍이">
+                                <h4>멍멍이</h4>
+                                <p>개 • 골든 리트리버</p>
+                                <div class="pet-actions">
+                                    <button class="pet-edit" onclick="alert('수정 기능 (데모)')">수정</button>
+                                    <button class="pet-delete" onclick="alert('삭제 기능 (데모)')">삭제</button>
+                                </div>
+                            </div>
+                            <div class="pet-card-mypage">
+                                <img src="https://via.placeholder.com/80x80/ff6b6b/ffffff?text=🐱" alt="야옹이">
+                                <h4>야옹이</h4>
+                                <p>고양이 • 러시안 블루</p>
+                                <div class="pet-actions">
+                                    <button class="pet-edit" onclick="alert('수정 기능 (데모)')">수정</button>
+                                    <button class="pet-delete" onclick="alert('삭제 기능 (데모)')">삭제</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 내 일기 -->
+                    <div class="tab-content" id="diaries-tab">
+                        <h3>내 일기</h3>
+                        <div style="display: grid; gap: 20px;">
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #ff6b6b;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <h4>오늘 산책이 너무 즐거웠어!</h4>
+                                    <span style="color: #666; font-size: 12px;">2025-01-10</span>
+                                </div>
+                                <p style="color: #666; margin-bottom: 10px;">주인님과 함께한 한강공원 산책이 정말 행복했어...</p>
+                                <div style="display: flex; gap: 10px; font-size: 12px; color: #666;">
+                                    <span>🐕 멍멍이</span>
+                                    <span>❤️ 15</span>
+                                    <span>👀 32</span>
+                                </div>
+                            </div>
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #ff6b6b;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <h4>새 장난감이 왔어!</h4>
+                                    <span style="color: #666; font-size: 12px;">2025-01-09</span>
+                                </div>
+                                <p style="color: #666; margin-bottom: 10px;">집사가 새로운 깃털 장난감을 사줬어...</p>
+                                <div style="display: flex; gap: 10px; font-size: 12px; color: #666;">
+                                    <span>🐱 야옹이</span>
+                                    <span>❤️ 22</span>
+                                    <span>👀 45</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 계정 설정 -->
+                    <div class="tab-content" id="settings-tab">
+                        <h3>계정 설정</h3>
+                        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px;">
+                            <h4>개인정보</h4>
+                            <p><strong>이메일:</strong> demo@mypetsvoice.com</p>
+                            <p><strong>가입일:</strong> 2025-01-01</p>
+                            <p><strong>로그인 방식:</strong> 일반 회원가입</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 홈 섹션 (숨겨진 상태) -->
+        <section id="home" class="section">
+            <div style="text-align: center; padding: 100px 20px;">
+                <h2>환영합니다, 반려동물러버님!</h2>
+                <p style="margin: 20px 0; color: #666;">MyPet's Voice에서 반려동물과의 특별한 시간을 보내세요.</p>
+                <div style="display: flex; justify-content: center; gap: 20px; margin-top: 40px;">
+                    <button class="btn btn-primary" onclick="showSection('chat')">채팅 시작하기</button>
+                    <button class="btn btn-outline" onclick="showSection('diary')">일기 보러가기</button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // 현재 선택된 반려동물
+        let currentChatPet = null;
+
+        // 섹션 전환
+        function showSection(sectionName) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.getElementById(sectionName).classList.add('active');
+            
+            // 네비게이션 링크 활성화
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            event.target.classList.add('active');
+        }
+
+        // 사용자 메뉴 토글
+        function toggleUserMenu() {
+            const userMenu = document.getElementById('user-menu');
+            userMenu.classList.toggle('active');
+        }
+
+        // 채팅 반려동물 선택
+        function selectChatPet() {
+            const select = document.getElementById('chat-pet-select');
+            const petId = select.value;
+            const messagesContainer = document.getElementById('chat-messages');
+            
+            if (petId === '1') {
+                currentChatPet = { id: 1, name: '멍멍이', species: '개', emoji: '🐕' };
+                messagesContainer.innerHTML = `
+                    <div class="message pet">
+                        <div class="message-avatar">🐕</div>
+                        <div class="message-bubble">
+                            안녕! 나는 멍멍이야! 🐾<br>
+                            오늘은 뭐 하고 놀까? 나랑 대화해봐!
+                        </div>
+                    </div>
+                `;
+                document.getElementById('chat-input').disabled = false;
+                document.getElementById('chat-send-btn').disabled = false;
+            } else if (petId === '2') {
+                currentChatPet = { id: 2, name: '야옹이', species: '고양이', emoji: '🐱' };
+                messagesContainer.innerHTML = `
+                    <div class="message pet">
+                        <div class="message-avatar">🐱</div>
+                        <div class="message-bubble">
+                            냥~ 나는 야옹이야 🐱<br>
+                            무엇을 도와드릴까요, 집사님?
+                        </div>
+                    </div>
+                `;
+                document.getElementById('chat-input').disabled = false;
+                document.getElementById('chat-send-btn').disabled = false;
+            } else {
+                currentChatPet = null;
+                messagesContainer.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        <div style="font-size: 48px; margin-bottom: 20px;">🐾</div>
+                        <p>반려동물을 선택하고 대화를 시작해보세요!</p>
+                    </div>
+                `;
+                document.getElementById('chat-input').disabled = true;
+                document.getElementById('chat-send-btn').disabled = true;
+            }
+        }
+
+        // 채팅 메시지 전송
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            
+            if (!message || !currentChatPet) return;
+            
+            // 사용자 메시지 추가
+            addChatMessage('user', message);
+            input.value = '';
+            
+            // AI 응답 시뮬레이션
+            setTimeout(() => {
+                let response = '';
+                if (currentChatPet.id === 1) {
+                    const responses = [
+                        '와! 그거 정말 재미있겠다! 🐕',
+                        '나도 그거 좋아해! 같이 하자!',
+                        '주인님 최고야! 항상 고마워 💕',
+                        '오늘도 산책 갈까? 너무 기대돼!',
+                        '그런 일이 있었구나! 정말 신기해!'
+                    ];
+                    response = responses[Math.floor(Math.random() * responses.length)];
+                } else if (currentChatPet.id === 2) {
+                    const responses = [
+                        '흠... 그럴 수도 있겠네요 🐱',
+                        '집사님, 그보다 간식은 언제 주실 건가요?',
+                        '도도한 척하지만 사실 관심 있어요 😸',
+                        '냥~ 오늘은 햇볕이 좋네요',
+                        '그런 건 별로 중요하지 않아요... 츤데레'
+                    ];
+                    response = responses[Math.floor(Math.random() * responses.length)];
+                }
+                addChatMessage('pet', response);
+            }, 1000);
+        }
+
+        // 채팅 메시지 추가
+        function addChatMessage(sender, message) {
+            const messagesContainer = document.getElementById('chat-messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            if (sender === 'user') {
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">${message}</div>
+                    <div class="message-avatar">👤</div>
+                `;
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="message-avatar">${currentChatPet.emoji}</div>
+                    <div class="message-bubble">${message}</div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // 채팅 키보드 이벤트
+        function handleChatKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // 일기 보기 모드 전환
+        function toggleDiaryView(button, view) {
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            console.log('일기 보기 모드:', view);
+        }
+
+        // 마이페이지 탭 전환
+        function showMypageTab(button, tabName) {
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            button.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+        }
+
+        // 프로필 업데이트
+        function handleProfileUpdate(event) {
+            event.preventDefault();
+            alert('프로필이 수정되었습니다! (데모)');
+        }
+
+        // 페이지 외부 클릭 시 사용자 메뉴 닫기
+        window.addEventListener('click', function(event) {
+            const userMenu = document.getElementById('user-menu');
+            const userProfile = document.querySelector('.user-profile');
+            
+            if (!userProfile.contains(event.target)) {
+                userMenu.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>

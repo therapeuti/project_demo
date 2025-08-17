@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>반려동물의 목소리가 들려</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #fffbea;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #FFD600;
+            padding: 10px 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .auth-buttons button {
+            margin-left: 5px;
+            padding: 5px 10px;
+            background-color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .service-title {
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .navbar {
+            background-color: #FFC400;
+            padding: 10px 0;
+        }
+
+        .navbar ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 0;
+            gap: 20px;
+        }
+
+        .navbar a {
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+
+        .navbar a:hover {
+            color: #ff8c00;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .content-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .card-list {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid #eee;
+            padding: 10px;
+            border-radius: 8px;
+            width: 150px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .todo-list {
+            background-color: white;
+            padding: 15px;
+            border-radius: 8px;
+            list-style: none;
+            margin: 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .todo-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .todo-list li:last-child {
+            border-bottom: none;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 15px;
+            background-color: #FFD600;
+            font-size: 0.9em;
+            margin-top: 40px;
+        }
+
+        #weather {
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-left">
+            <div id="weather">날씨 불러오는 중...</div>
+            <div class="auth-buttons">
+                <button onclick="login()">로그인</button>
+                <button onclick="showNotifications()">🔔 알림</button>
+            </div>
+        </div>
+        <div class="header-right">
+            <span class="service-title">🐾 반려동물의 목소리가 들려</span>
+        </div>
+    </header>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <ul>
+            <li><a href="#">커뮤니티</a></li>
+            <li><a href="#">플레이스</a></li>
+            <li><a href="#">투어스팟</a></li>
+            <li><a href="#">데일리케어</a></li>
+            <li><a href="#">너의 일기장</a></li>
+            <li><a href="#">마이페이지</a></li>
+        </ul>
+    </nav>
+
+    <!-- Main content -->
+    <main>
+        <section class="content-section">
+            <h2>추천 게시물</h2>
+            <div class="card-list">
+                <div class="card">게시물 1</div>
+                <div class="card">게시물 2</div>
+                <div class="card">게시물 3</div>
+            </div>
+
+            <h2>오늘의 할 일</h2>
+            <ul class="todo-list">
+                <li>강아지 산책</li>
+                <li>고양이 간식 챙기기</li>
+                <li>물 갈아주기</li>
+            </ul>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>© 2025 반려동물의 목소리가 들려. All rights reserved.</p>
+        <p>문의: support@petvoice.com | 사업자등록번호: 123-45-67890</p>
+    </footer>
+
+    <script>
+        // 페이지 로드 시 실행
+        document.addEventListener("DOMContentLoaded", function () {
+            fetchWeather();
+        });
+
+        // 날씨 정보 가져오기
+        function fetchWeather() {
+            // API 키가 없으므로 기본 메시지 표시
+            document.getElementById("weather").textContent = "서울, 맑음 15°C";
+        }
+
+        // 로그인 함수
+        function login() {
+            alert("로그인 페이지로 이동");
+        }
+
+        // 로그아웃 함수
+        function logout() {
+            alert("로그아웃되었습니다.");
+        }
+
+        // 알림 표시 함수
+        function showNotifications() {
+            alert("알림창 표시");
+        }
+    </script>
+</body>
+</html>
