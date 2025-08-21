@@ -1,0 +1,94 @@
+# 환경 변수 파일
+.env
+.env.local
+.env.production
+.env.development
+
+# Python 관련 파일들
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+.virtualenv
+
+# Flask 관련
+instance/
+.webassets-cache
+*.db
+*.sqlite3
+
+# IDE 및 에디터 파일
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# 로그 파일
+*.log
+logs/
+
+# 임시 파일
+*.tmp
+*.temp
+.cache/
+
+# 패키지 관련
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Pytest 및 테스트 관련
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# 개발 도구
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# OS 관련 파일
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 세션 및 캐시
+flask_session/
+*.session
+
+# 업로드 파일 (필요시)
+uploads/
+
+# 백업 파일
+*.bak
+*.backup
+
+# 민감한 정보가 포함된 파일들
+config.py
+secrets.py
+private_key.pem
+*.key
+
+# Node.js (필요시 프론트엔드 빌드 도구 사용)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# 프로덕션 설정 파일
+production.cfg
+local_settings.py
